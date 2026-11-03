@@ -1,0 +1,52 @@
+{
+  "gpu": "Tesla V100-SXM2-32GB",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "method": "ngram",
+  "fit_r2": 0.942932134763877,
+  "n1": 32,
+  "n2": 160,
+  "constants": {
+    "t_mem_target": 0.022891609609794243,
+    "t_flop_target": 0.00014499844036673382,
+    "t_mem_draft": 0.0,
+    "t_flop_draft": 0.0
+  },
+  "raw": [
+    {
+      "batch": 1,
+      "t_short_s": 0.7214,
+      "t_long_s": 3.5878,
+      "step_latency_s": 0.022393491119146347
+    },
+    {
+      "batch": 2,
+      "t_short_s": 0.7959,
+      "t_long_s": 3.7716,
+      "step_latency_s": 0.023247942328453064
+    },
+    {
+      "batch": 4,
+      "t_short_s": 0.7945,
+      "t_long_s": 3.8291,
+      "step_latency_s": 0.02370835468173027
+    },
+    {
+      "batch": 8,
+      "t_short_s": 0.8197,
+      "t_long_s": 3.9111,
+      "step_latency_s": 0.024151714518666267
+    },
+    {
+      "batch": 16,
+      "t_short_s": 0.8748,
+      "t_long_s": 4.1732,
+      "step_latency_s": 0.02576875314116478
+    },
+    {
+      "batch": 32,
+      "t_short_s": 0.935,
+      "t_long_s": 4.4184,
+      "step_latency_s": 0.027214303612709045
+    }
+  ]
+}

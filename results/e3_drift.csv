@@ -1,0 +1,4 @@
+policy,throughput_tps,goodput_rps,tpot_p90,mean_gamma
+static-g5,1903.2,6.799,0.0396,5.0
+static-g2,2858.0,11.286,0.0246,2.0
+adaptive,3247.5,12.825,0.0205,1.01

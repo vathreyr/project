@@ -1,0 +1,66 @@
+{
+  "gpu": "Tesla V100-SXM2-32GB",
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "gamma": 4,
+  "spec_config": {
+    "method": "ngram",
+    "num_speculative_tokens": 4,
+    "prompt_lookup_max": 5,
+    "prompt_lookup_min": 2
+  },
+  "metrics_supported": true,
+  "rows": [
+    {
+      "gamma": 4,
+      "batch": 1,
+      "wall_s": 2.4411,
+      "out_tokens": 128,
+      "throughput_tok_s": 52.44,
+      "tpot_s": 0.01907,
+      "accept_fraction": 0.1608,
+      "accept_length": 1.6389,
+      "num_drafts": 36,
+      "draft_tokens": 143,
+      "accepted_tokens": 23
+    },
+    {
+      "gamma": 4,
+      "batch": 4,
+      "wall_s": 2.596,
+      "out_tokens": 413,
+      "throughput_tok_s": 159.09,
+      "tpot_s": 0.02514,
+      "accept_fraction": 0.3884,
+      "accept_length": 2.5495,
+      "num_drafts": 91,
+      "draft_tokens": 363,
+      "accepted_tokens": 141
+    },
+    {
+      "gamma": 4,
+      "batch": 16,
+      "wall_s": 3.5907,
+      "out_tokens": 1766,
+      "throughput_tok_s": 491.83,
+      "tpot_s": 0.03253,
+      "accept_fraction": 0.4124,
+      "accept_length": 2.637,
+      "num_drafts": 292,
+      "draft_tokens": 1159,
+      "accepted_tokens": 478
+    },
+    {
+      "gamma": 4,
+      "batch": 32,
+      "wall_s": 4.6553,
+      "out_tokens": 3549,
+      "throughput_tok_s": 762.35,
+      "tpot_s": 0.04198,
+      "accept_fraction": 0.3524,
+      "accept_length": 2.3969,
+      "num_drafts": 582,
+      "draft_tokens": 2307,
+      "accepted_tokens": 813
+    }
+  ]
+}

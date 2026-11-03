@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual environments (built on the GPU host, not versioned)
+.venv*/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+*.swp
+
+# Node (marp CLI cache, if any)
+node_modules/
+
+# Archives and large/transient artifacts
+*.zip
+*.tar.gz
+
+# Generated report intermediates (keep the .md sources and .pdf/.pptx outputs)
+reports/*.html
+
+# Model / HF caches (if ever created locally)
+hf_cache/
+.cache/
