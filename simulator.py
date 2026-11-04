@@ -62,6 +62,14 @@ class RunResult:
     tpot_p99: float
     slo_attainment: float
     goodput: float
+    # End-to-end normalized latency (per output token, INCLUDING queue wait),
+    # and the SLO attainment / goodput computed against it. Under overload this
+    # is what differentiates policies, unlike decode-only TPOT.
+    e2e_p50: float
+    e2e_p90: float
+    e2e_p99: float
+    slo_attain_e2e: float
+    goodput_e2e: float
     mean_batch: float
     mean_gamma: float
     n_requests: int
@@ -164,13 +172,21 @@ def simulate(policy, cfg: WorkloadConfig, hw: HardwareModel,
             else:
                 still_running.append(r)
 
-        # Feed the realized acceptance back to the policy as the fraction of
-        # draft tokens accepted this step across the batch (in [0, 1]).
+        # Feed back an observed-trial per-token acceptance estimate. Under
+        # leading-run acceptance, positions after the first rejection are never
+        # tested, so accepted / (gamma*batch) is biased low. The denominator we
+        # use is the number of resolved trials: every accepted token plus the
+        # single rejection that stopped each run (capped at gamma when all
+        # accepted). This addresses the normalization bias; it is not a provably
+        # unbiased finite-sample estimator (see controller.observe).
         if gamma > 0 and accepted_this_step:
-            frac = float(np.sum(accepted_this_step)) / (gamma * batch)
+            acc_total = float(np.sum(accepted_this_step))
+            observed = float(np.sum([min(a + 1, gamma)
+                                     for a in accepted_this_step]))
+            alpha_obs = acc_total / observed if observed > 0 else 0.0
         else:
-            frac = 0.0
-        policy.observe(frac, gamma)
+            alpha_obs = 0.0
+        policy.observe(alpha_obs, gamma)
 
         running = still_running
         clock += t_step
@@ -181,6 +197,12 @@ def simulate(policy, cfg: WorkloadConfig, hw: HardwareModel,
     sim_time = clock
     tpots = np.array([r.decode_time / max(1, r.produced) for r in completed])
     meets = tpots <= slo_tpot
+    # End-to-end normalized latency per output token, including queue wait:
+    # (finish - arrival) / produced. This is the standard serving normalized
+    # latency and, unlike decode-only TPOT, degrades under overload.
+    e2e = np.array([(r.finish_time - r.arrival) / max(1, r.produced)
+                    for r in completed])
+    meets_e2e = e2e <= slo_tpot
     return RunResult(
         label=policy.name,
         lam=cfg.lam,
@@ -191,6 +213,11 @@ def simulate(policy, cfg: WorkloadConfig, hw: HardwareModel,
         tpot_p99=float(np.percentile(tpots, 99)),
         slo_attainment=float(meets.mean()),
         goodput=float(meets.sum() / sim_time) if sim_time > 0 else 0.0,
+        e2e_p50=float(np.percentile(e2e, 50)),
+        e2e_p90=float(np.percentile(e2e, 90)),
+        e2e_p99=float(np.percentile(e2e, 99)),
+        slo_attain_e2e=float(meets_e2e.mean()),
+        goodput_e2e=float(meets_e2e.sum() / sim_time) if sim_time > 0 else 0.0,
         mean_batch=batch_accum / max(1, n_steps),
         mean_gamma=gamma_accum / max(1, n_steps),
         n_requests=len(completed),

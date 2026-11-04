@@ -78,28 +78,70 @@ class AdaptiveController:
     def choose_gamma(self, batch_size: int, step_index: int) -> int:
         return self._best_gamma(batch_size, self.alpha_hat)
 
-    def observe(self, accepted_fraction: float, gamma: int) -> None:
+    def observe(self, alpha_obs: float, gamma: int) -> None:
         """
-        Update the acceptance estimate from one step's outcome.
-        `accepted_fraction` is the fraction of draft tokens accepted across
-        the batch this step (in [0, 1]); fold it into the EWMA. We keep this
-        as a float on purpose: rounding it to an int collapses the estimate
-        for gamma=1 and biases the controller toward the minimum gamma.
+        Update the per-token acceptance estimate from one step's outcome.
+
+        `alpha_obs` is an observed-trial estimate of the per-token acceptance
+        probability, that is accepted_tokens / observed_trials, where an
+        observed trial is a draft position that was actually resolved (every
+        accepted token, plus the single rejection that terminated the run).
+        It addresses the normalization bias of accepted_tokens / (gamma*batch):
+        under leading-run acceptance that ratio is biased low (about 0.47 at
+        true alpha=0.72, gamma=4) because positions after the first rejection
+        are never tested, which would push the controller toward shorter
+        speculation. The observed-trial ratio is not a provably unbiased
+        estimator in finite samples (for gamma=2 on one sequence its
+        expectation is alpha + alpha(1-alpha)/2), and pooling trials across a
+        heterogeneous batch weights requests by how many trials they produced.
+        The caller (simulator / vLLM hook) forms alpha_obs.
         """
         if gamma <= 0:
             return
-        realized = min(max(accepted_fraction, 0.0), 1.0)
+        realized = min(max(alpha_obs, 0.0), 1.0)
         self.alpha_hat = (self.ewma_decay * self.alpha_hat
                           + (1.0 - self.ewma_decay) * realized)
 
 
+class BatchAwareFixedAlpha:
+    """
+    Ablation baseline that isolates the contribution of ONLINE acceptance
+    estimation. It is batch-aware (it picks gamma from the current batch size
+    through the same cost-model objective) but uses a FIXED acceptance rate and
+    never updates it from feedback. Comparing the full AdaptiveController
+    against this policy on a drifting-acceptance workload isolates exactly how
+    much the online alpha estimate contributes, which the static-gamma
+    baselines cannot.
+    """
+
+    def __init__(self, hw: HardwareModel, gamma_max: int = 8,
+                 alpha_fixed: float = 0.7):
+        self.hw = hw
+        self.gamma_max = gamma_max
+        self.alpha_fixed = alpha_fixed
+        self.name = f"batch-only(a={alpha_fixed})"
+
+    def choose_gamma(self, batch_size: int, step_index: int) -> int:
+        best_g, best = 1, -1.0
+        for g in range(1, self.gamma_max + 1):
+            score = (expected_tokens_per_step(self.alpha_fixed, g)
+                     / self.hw.macro_step_seconds(batch_size, g))
+            if score > best:
+                best, best_g = score, g
+        return best_g
+
+    def observe(self, alpha_obs: float, gamma: int) -> None:
+        pass
+
+
 class OraclePolicy:
     """
-    Upper bound: at every step, picks the gamma that maximizes the SAME
+    Reference policy: at every step, picks the gamma that maximizes the SAME
     tokens-per-second proxy but using the request's TRUE current acceptance
-    rate rather than an online estimate. Not realizable in practice (it needs
-    future knowledge); it tells us how much headroom the adaptive controller
-    is leaving on the table.
+    rate rather than an online estimate. It is not realizable in practice (it
+    needs the true current acceptance) and is not a proven upper bound on
+    long-run SLO goodput; it is a reference point for how much the online
+    acceptance estimate costs the adaptive controller.
     """
 
     def __init__(self, hw: HardwareModel, gamma_max: int = 8):

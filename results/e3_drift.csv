@@ -1,4 +1,5 @@
-policy,throughput_tps,goodput_rps,tpot_p90,mean_gamma
-static-g5,1903.2,6.799,0.0396,5.0
-static-g2,2858.0,11.286,0.0246,2.0
-adaptive,3247.5,12.825,0.0205,1.01
+policy,throughput_mean,throughput_std,goodput_e2e_mean,goodput_e2e_std,mean_gamma_mean
+static-g2,2907.4,27.4,1.495,0.078,2.0
+static-g5,1944.5,25.9,0.493,0.026,5.0
+batch-only,3231.4,34.5,2.025,0.113,1.21
+adaptive,3279.4,25.2,2.064,0.113,1.02
