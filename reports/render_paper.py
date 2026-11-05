@@ -13,14 +13,14 @@ table.authors { margin:0 auto 1.4em; border-collapse:collapse; }
 table.authors td { border:none !important; padding:0 1.5em; text-align:center; vertical-align:top; }
 .authors .nm { font-weight:bold; font-size:11pt; }
 .authors .af { font-size:10pt; } .authors .em { font-family:'Courier New',monospace; font-size:9.5pt; }
-h2 { font-size:12pt; font-weight:bold; margin:1.3em 0 .4em; }
+h2 { font-size:12pt; font-weight:bold; margin:1.3em 0 .4em; page-break-after:avoid; }
 h2.abs { text-align:center; font-size:11.5pt; margin-bottom:.3em; }
 h3 { font-size:11pt; font-weight:bold; font-style:italic; margin:1.0em 0 .3em; }
 p { margin:.5em 0; }
 div.abstract { margin:0 1.6em; font-size:10pt; }
 code { font-family:'Courier New',monospace; font-size:9pt; background:#f3f3f3; padding:0 2px; }
 pre { font-family:'Courier New',monospace; font-size:8.5pt; background:#f6f6f6; border:1px solid #e3e3e3; padding:.6em; overflow-x:auto; }
-table { border-collapse:collapse; margin:.4em auto 1.0em; font-size:9.5pt; }
+table { border-collapse:collapse; margin:.4em auto 1.0em; font-size:9.5pt; page-break-inside:avoid; }
 th,td { border:1px solid #999; padding:3px 8px; text-align:center; }
 p.cap { text-align:center; font-size:9.5pt; font-style:italic; margin:.2em 0 .4em; }
 figure { text-align:center; margin:1.0em 0; }
