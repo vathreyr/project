@@ -115,6 +115,7 @@ def e2_load_sweep():
     lambdas = [5, 10, 20, 35, 50, 70, 90, 120, 150]
     policies = {
         "no-spec": lambda: NoSpecPolicy(),
+        "static-g1": lambda: StaticPolicy(1),
         "static-g2": lambda: StaticPolicy(2),
         "static-g3": lambda: StaticPolicy(3),
         "static-g4": lambda: StaticPolicy(4),
@@ -200,6 +201,7 @@ def e3_drift():
     lam = 30
     alpha0 = 0.72
     makers = {
+        "static-g1": lambda: StaticPolicy(1),
         "static-g2": lambda: StaticPolicy(2),
         "static-g5": lambda: StaticPolicy(5),
         "batch-only": lambda: BatchAwareFixedAlpha(HW, GAMMA_MAX, alpha0),
